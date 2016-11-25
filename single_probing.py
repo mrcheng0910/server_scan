@@ -1,9 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from libnmap.process import NmapProcess
 
-nm = NmapProcess("221.217.36.184", options="-sV -p U:53,111,137")
-rc = nm.run()
-
-if nm.rc == 0:
-    print nm.stdout
-else:
-    print nm.stderr
+nmap_proc = NmapProcess(targets="114.114.114.114,8.8.8.8", options="-sV")
+nmap_proc.run_background()
+while nmap_proc.is_running():
+    nmaptask = nmap_proc.current_task
+    if nmaptask:
+        print("Task {0} ({1}): ETC: {2} DONE: {3}%".format(nmaptask.name,
+                                                           nmaptask.status,
+                                                           nmaptask.etc,
+                                                           nmaptask.progress))
+print("rc: {0} output: {1}".format(nmap_proc.rc, nmap_proc.summary))
+print(nmap_proc.stdout)
+print(nmap_proc.stderr)
