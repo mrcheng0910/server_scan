@@ -12,26 +12,27 @@ class ServerInfo(object):
 
 
 
-    def __init__(self,ip,source,options="-sV"):
+    def __init__(self,ip,source,options="-sV",method="tcp_syn"):
         """
         初始化函数
         :param ip:
         :param source:
         :param options:
         """
-        self.ip = ip
-        self.source = source
-        self.options = options
-        self.detected_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.ip = ip  # 探测的ip
+        self.source = source  # ip来源，
+        self.options = options  #nmap探测命令
+        self.method = method  # 探测方法
 
         # 参数
-        self.filter_port_count = 0
-        self.closed_port_count = 0
-        self.open_port_count = 0
-        self.ports = []
-        self.elapsed = 0
-        self.status = ""
-        self.host_name = ""
+        self.detected_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.filter_port_count = 0  # 未知端口数量
+        self.closed_port_count = 0  # 关闭端口数量
+        self.open_port_count = 0  #开放端口数量
+        self.ports = []   # 端口详细信息
+        self.elapsed = 0   # 探测时间
+        self.status = ""     # ip状态：up/down
+        self.host_name = ""  # ip逆向解析
 
         # 原始数据
         self.raw_data = ""
@@ -121,11 +122,11 @@ class ServerInfo(object):
             self.closed_port_count = port_closed
             self.filter_port_count = port_filter
             if port_filter == 0 and port_closed==0:
-                self.filter_port_count = 100 - port_open
+                self.filter_port_count = 1000 - port_open
             elif port_filter == 0 and port_closed!=0:
-                self.filter_port_count = 100-port_open-port_closed
+                self.filter_port_count = 1000 - port_open-port_closed
             elif port_filter != 0 and port_closed==0:
-                self.closed_port_count = 100 - port_open-port_filter
+                self.closed_port_count = 1000 - port_open-port_filter
 
 
     def print_server(self):
@@ -141,7 +142,8 @@ class ServerInfo(object):
             "ports": self.ports,
             "elapsed": self.elapsed,
             "state": self.status,
-            "detected_time": self.detected_time
+            "detected_time": self.detected_time,
+            "method": self.method
         }
         from db_manage import insert_detect_info
         insert_detect_info(server_dic)
@@ -172,14 +174,14 @@ def get_has_detected_server():
     return has_detected_servers
 
 
-def will_detect_server():
+def get_will_detect_server():
     """
     获取将要探测的服务器ip列表
     :return:
     """
     will_detected_servers = []
     try:
-        fp = open('dns_server.txt','r')
+        fp = open('server_test.txt','r')
         for ip in fp.readlines():
             will_detected_servers.append(ip.strip())
         fp.close()
@@ -190,11 +192,10 @@ def will_detect_server():
 
 if __name__ == "__main__":
 
-    fp = open('dns_server.txt','r')
+    has_detected_server = get_has_detected_server()
+    will_detect_server = get_will_detect_server()
+    detect_server = list(set(will_detect_server).difference(set(has_detected_server)))
 
-    for ip in fp.readlines():
-        print ip.strip()
-        t = ServerInfo(ip.strip(), "dns","-sV -F")
+    for ip in detect_server:
+        t = ServerInfo(ip.strip(), "whois","-sV","tcp-syn")
         t.scan_result()
-
-    fp.close()

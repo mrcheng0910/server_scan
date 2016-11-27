@@ -4,8 +4,6 @@
 """
 
 from pymongo import MongoClient
-from datetime import datetime,timedelta
-import tldextract
 
 
 def get_db():
@@ -25,8 +23,7 @@ def insert_detect_info(data):
     :return:
     """
     db = get_db()
-    collection = db['server_tcp_details']
+    collection = db['server_details']
     result = collection.insert_one(data)
     print "result.inserted_id: {}".format(result.inserted_id)
 
-# insert_detect_info("nihao")
