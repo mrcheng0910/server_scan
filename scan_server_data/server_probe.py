@@ -182,7 +182,7 @@ def get_will_detect_server():
     """
     will_detected_servers = []
     try:
-        fp = open('server_test.txt','r')
+        fp = open('dns_server.txt','r')
         for ip in fp.readlines():
             will_detected_servers.append(ip.strip())
         fp.close()
@@ -198,5 +198,5 @@ if __name__ == "__main__":
     detect_server = list(set(will_detect_server).difference(set(has_detected_server)))
 
     for ip in detect_server:
-        t = ServerInfo(ip.strip(), "whois","-sV -F","tcp-syn")
+        t = ServerInfo(ip.strip(), "dns","-sV -F","tcp-syn")
         t.scan_result()
