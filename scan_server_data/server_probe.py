@@ -6,6 +6,7 @@
 from datetime import datetime
 from libnmap.process import NmapProcess
 from libnmap.parser import NmapParser, NmapParserException
+from time import sleep
 
 
 class ServerInfo(object):
@@ -55,6 +56,7 @@ class ServerInfo(object):
                                                                    nmaptask.status,
                                                                    nmaptask.etc,
                                                                    nmaptask.progress))
+            sleep(2)
         self.raw_data = nmproc.stdout  # 原始扫描数据
         print self.raw_data
         try:
