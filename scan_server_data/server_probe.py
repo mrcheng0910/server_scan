@@ -3,6 +3,7 @@
 """
 使用nmap的tcp sys探测ip的端口开放情况，并且存入到数据库中
 """
+
 from datetime import datetime
 from libnmap.process import NmapProcess
 from libnmap.parser import NmapParser, NmapParserException
@@ -58,7 +59,6 @@ class ServerInfo(object):
                                                                    nmaptask.progress))
             sleep(2)
         self.raw_data = nmproc.stdout  # 原始扫描数据
-        print self.raw_data
         try:
             self.parsed = NmapParser.parse(nmproc.stdout)  # 解析扫描的数据
         except NmapParserException as e:
@@ -87,7 +87,6 @@ class ServerInfo(object):
                 self.host_name = host.address
 
             self.status = host.status  # host状态，up开放/down关闭
-            print self.status
             self.elapsed = nmap_report.elapsed  # 探测时长
 
             # 如果host关闭状态，则结束
@@ -184,7 +183,7 @@ def get_will_detect_server():
     """
     will_detected_servers = []
     try:
-        fp = open('a.txt','r')
+        fp = open('dns_server1.txt','r')
         for ip in fp.readlines():
             will_detected_servers.append(ip.strip())
         fp.close()
@@ -200,5 +199,5 @@ if __name__ == "__main__":
     detect_server = list(set(will_detect_server).difference(set(has_detected_server)))
 
     for ip in detect_server:
-        t = ServerInfo(ip.strip(), "mirai","-sV -F","tcp-syn")
+        t = ServerInfo(ip.strip(), "dns","-sV -F","tcp-syn")
         t.scan_result()
